@@ -214,7 +214,7 @@ abstract class SettingStore
 		}
 
 		if ($this->cache && $this->cacheForgetOnWrite) {
-			$this->cache->forget(static::CACHE_KEY);
+			$this->cache->forget($this->getCacheKey());
 		}
 
 		$this->write($this->data);
@@ -244,12 +244,17 @@ abstract class SettingStore
 	private function readData()
 	{
 		if ($this->cache) {
-			return $this->cache->remember(static::CACHE_KEY, $this->cacheTtl, function () {
+			return $this->cache->remember($this->getCacheKey(), $this->cacheTtl, function () {
 				return $this->read();
 			});
 		}
 
 		return $this->read();
+	}
+
+	private function getCacheKey()
+	{
+		return sprintf('%s::%s', request()->getHost(), static::CACHE_KEY);
 	}
 
 	/**
